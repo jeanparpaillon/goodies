@@ -1,6 +1,13 @@
 # Goodies
 
 Small volume manager
+## Usage
+
+```elixir
+s = Goodies.Source.Github.new("jeanparpaillon", "goodies", ~r/goodies.*/, ">= 0.0.0")
+s |> Goodies.Volume.new() |> Goodies.Volume.fetch(progress: true)
+```
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
