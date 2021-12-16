@@ -3,7 +3,6 @@ defmodule Goodies.Source.Github do
   Represent a github volume source
   """
   alias Goodies.Github.Api
-  alias Goodies.Source
   alias HTTPoison.Request
 
   defstruct org: nil, repo: nil, asset_name: nil, asset: nil, req: nil, opts: [], valid?: nil
@@ -122,7 +121,7 @@ defmodule Goodies.Source.Github do
 
     def local(source), do: Github.local(source)
 
-    def update(source), do: Github.update(source)
+    def validate(source), do: Github.validate(source)
 
     def request(source), do: Github.request(source)
   end

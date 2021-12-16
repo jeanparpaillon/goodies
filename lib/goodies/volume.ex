@@ -34,4 +34,14 @@ defmodule Goodies.Volume do
 
     %{volume | local: local, source: source}
   end
+
+  @doc """
+  Delete downloaded volume
+  """
+  @spec clean(t()) :: t()
+  def clean(volume) do
+    {:ok, _} = File.rm_rf(Source.local(volume.source))
+
+    volume
+  end
 end
