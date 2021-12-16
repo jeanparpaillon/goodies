@@ -4,8 +4,8 @@ defprotocol Goodies.Source.Protocol do
   @spec local(t()) :: String.t()
   def local(source)
 
-  @spec update(t()) :: t()
-  def update(source)
+  @spec validate(t()) :: t()
+  def validate(source)
 
   @spec request(t()) :: t()
   def request(source)
@@ -47,7 +47,7 @@ defmodule Goodies.Source do
     to = local(source)
     :ok = File.mkdir_p!(Path.dirname(to))
     dest = File.stream!(to)
-    source = Source.Protocol.update(source)
+    source = Source.Protocol.validate(source)
 
     source
     |> Source.Protocol.request()
@@ -61,11 +61,7 @@ defmodule Goodies.Source do
   ###
   ### Priv
   ###
-  defp resolve_path({:app, path}) do
-    Application.app_dir(:goodies, path)
-  end
+  defp resolve_path({:app, path}), do: Application.app_dir(:goodies, path)
 
-  defp resolve_path(path) when is_binary(path) do
-    path
-  end
+  defp resolve_path(path) when is_binary(path), do: path
 end

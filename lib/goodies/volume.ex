@@ -25,10 +25,13 @@ defmodule Goodies.Volume do
   def fetch(volume, opts \\ []) do
     local = Source.local(volume.source)
 
-    if not File.exists?(local) do
-      _ = Source.fetch!(volume.source, opts)
-    end
+    source =
+      if not File.exists?(local) do
+        Source.fetch!(volume.source, opts)
+      else
+        volume.source
+      end
 
-    %{volume | local: local}
+    %{volume | local: local, source: source}
   end
 end

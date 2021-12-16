@@ -6,7 +6,7 @@ defmodule Goodies.Source.Github do
   alias Goodies.Source
   alias HTTPoison.Request
 
-  defstruct org: nil, repo: nil, asset_name: nil, asset: nil, req: nil, opts: []
+  defstruct org: nil, repo: nil, asset_name: nil, asset: nil, req: nil, opts: [], valid?: nil
 
   @type t :: %__MODULE__{}
   @type org() :: String.t()
@@ -37,22 +37,24 @@ defmodule Goodies.Source.Github do
   @doc """
   Update source: fetch github asset matching repo and version requirements
   """
-  @spec update(t()) :: t()
-  def update(%{asset: nil} = source) do
+  @spec validate(t()) :: t()
+  def validate(%{valid?: nil} = source) do
     releases = Api.releases(source.org, source.repo, source.opts)
 
     with {:release, [release | _]} <-
            {:release, filter_releases(releases, requirement: source.req)},
          {:asset, [asset]} <- {:asset, filter_assets(release, source.asset_name)} do
-      %{source | asset: asset}
+      %{source | asset: asset, valid?: true}
     else
       {:release, []} ->
-        raise Source.Error, reason: {:missing_release, source.req}
+        %{source | valid?: false}
 
       {:asset, []} ->
-        raise Source.Error, reason: {:mising_asset, source.asset_name}
+        %{source | valid?: false}
     end
   end
+
+  def validate(%{valid?: true} = source), do: source
 
   @doc """
   Returns request for fetching source
