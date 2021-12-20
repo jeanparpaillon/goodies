@@ -42,7 +42,7 @@ defmodule Goodies.Source do
   end
 
   @doc false
-  @spec fetch!(t(), Path.t() [fetch_opt()]) :: t()
+  @spec fetch!(t(), Path.t()[fetch_opt()]) :: t()
   def fetch!(source, to, opts \\ []) do
     :ok = File.mkdir_p!(Path.dirname(to))
     dest = File.stream!(to)

@@ -19,7 +19,7 @@ defmodule Goodies.Volume do
   @doc """
   Ensure volume has been fetched
   """
-  @spec fetch(t(), [Source.fetch_opt()]) :: t()
+  @spec fetch(t() | Source.t(), [Source.fetch_opt()]) :: t()
   def fetch(s, opts \\ [])
 
   def fetch(%__MODULE__{} = volume, opts) do
@@ -39,7 +39,7 @@ defmodule Goodies.Volume do
     source
     |> Source.Protocol.impl_for()
     |> case do
-      nil -> raise ArgumentError, "invalid source #{inspect source}"
+      nil -> raise ArgumentError, "invalid source #{inspect(source)}"
       _ -> source |> new() |> fetch(opts)
     end
   end
@@ -49,7 +49,8 @@ defmodule Goodies.Volume do
   """
   @spec clean(t()) :: :ok | {:error, term()}
   def clean(volume) do
-    with {:ok, _} <- File.rm_rf(Source.local(volume.source)) do
+    with :ok <- umount(volume),
+         {:ok, _} <- File.rm_rf(Source.local(volume.source)) do
       :ok
     end
   end
@@ -108,7 +109,7 @@ defmodule Goodies.Volume do
     |> Enum.filter(&Regex.match?(re, &1))
     |> Enum.map(&String.split(&1, " ", trim: true))
     |> case do
-      [ [_source, dest | _] ] ->  dest
+      [[_source, dest | _]] -> dest
       _ -> nil
     end
   end
