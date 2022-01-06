@@ -123,12 +123,14 @@ defmodule Goodies.Source.Github do
   end
 
   defp filter_assets(release, name) when is_binary(name) do
+    IO.inspect(name, label: "ASSET_1")
     release
     |> Map.get("assets")
     |> Enum.filter(&(Map.get(&1, "name") == name))
   end
 
   defp filter_assets(release, %Regex{} = re) do
+    IO.inspect(re.source, label: "ASSET_2")
     release
     |> Map.get("assets")
     |> Enum.filter(&Regex.match?(re, Map.get(&1, "name")))

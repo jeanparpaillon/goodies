@@ -43,6 +43,8 @@ defmodule Goodies.Downloader do
   end
 
   defp init_req(req, opts) do
+    {:ok, _} = Application.ensure_all_started(:hackney)
+
     %URI{path: path, query: query} = uri = URI.parse(req.url)
     {:ok, conn} = Mint.HTTP.connect(scheme(uri), uri.host, port(uri))
     path = "#{path}?#{query}"
