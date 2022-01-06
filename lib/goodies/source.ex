@@ -9,10 +9,23 @@ defprotocol Goodies.Source.Protocol do
 
   @spec request(t()) :: t()
   def request(source)
+
+  @spec errors(t()) :: [String.t()]
+  def errors(source)
 end
 
 defmodule Goodies.Source.Error do
-  defexception [:message, :reason]
+  defexception [:message, :reason, :source]
+
+  alias Goodies.Source
+
+  def message(%{source: source}) when not is_nil(source) do
+    """
+    Error fetching asset:
+
+    """
+    <> Enum.join(Source.Protocol.errors(source), "\n")
+  end
 
   def message(e) do
     "source error #{inspect(e.reason)}"
@@ -46,15 +59,20 @@ defmodule Goodies.Source do
   def fetch!(source, to, opts \\ []) do
     :ok = File.mkdir_p!(Path.dirname(to))
     dest = File.stream!(to)
-    source = Source.Protocol.validate(source)
 
     source
-    |> Source.Protocol.request()
-    |> Downloader.request(opts)
-    |> Stream.into(dest)
-    |> Stream.run()
+    |> Source.Protocol.validate()
+    |> case do
+      %{valid?: true} = source ->
+        source
+        |> Source.Protocol.request()
+        |> Downloader.request(opts)
+        |> Stream.into(dest)
+        |> Stream.run()
 
-    source
+      %{valid?: false} = source ->
+        raise Goodies.Source.Error, source: source
+    end
   end
 
   ###
